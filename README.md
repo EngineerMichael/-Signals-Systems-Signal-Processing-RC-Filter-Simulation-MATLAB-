@@ -1,302 +1,212 @@
-# RC-Signal-Filter-MatLab-
-close all;
-clear all;
-
-%% Part 1: Analysis and Reconstruction
-file = 'Signal2.wav';
-[x, Fs] = audioread(file);          %x is an array containing the signal
-
-Ts = 1 / Fs;                        %Ts is Sampling Period
-Nsamps = length(x);                 %Nsamps is the length of array x
-t = Ts * (1:Nsamps);                %Prepare time data for plot
-                                    %Array is the length of Nsamps 
-                                    %in increments of Ts
-                                    
-%% #2
-%Plot Sound File in Time Domain
-figure;
-plot(t, x);
-xlim([0 0.0115]);                      %3 Full Periods????
-xlabel('Time (s)');
-ylabel('Amplitude');
-title('Original Signal in Time Domain');
-
-%% #3
-%Do Fourier Transform
-x_fft = abs(fft(x) /Fs);            %Normalize Signal & Retain
-                                    %Magnitude
-x_fft = x_fft(1:Nsamps/2);          %Discard half of points
-f = Fs * (0:(Nsamps/2)-1)/Nsamps;   %Prepare frequency data for plots
-
-%Plot Sound File in Frequency Domain
-figure;
-plot(f, x_fft);
-
-xlim([0 1550]);                     %Show only 5 Harmonics
-xlabel('Frequency (Hz)');
-ylabel('Amplitude');
-title('Frequency Spectrum of Original Signal');
-%% #6
-a0 = 0.0050; %DC COMPONENT
-a1 = 0.0176;
-a2 = 0.0256;
-a3 = 0.0089;
-a4 = 0.0034;
-a5 = 0.004;
-
-fund_freq =   262.5;  %Fundamental Frequency ? (Obtained from Frequency Spectrum Graph) Hz
-fund_period = (2 * pi) / fund_freq;
-omega = 2 * pi * fund_freq; %rads/s
-
-%6a
-x1 = 2*a1*cos(omega * t);
-figure
-plot(t, x1);
-xlim([0  0.01143]);  
-xlabel('Time (s)');
-ylabel('Amplitude');
-title('X1');
-
-   
-%6b
-x2 = x1 + 2*a2*cos(2*omega*t);
-figure
-plot(t, x2);
-xlim([0  0.01143]);  
-xlabel('Time (s)');
-ylabel('Amplitude');
-title('X2');
-
-
-%6c
-x3 = x2 + 2*a3*cos(3*omega*t);
-figure
-plot(t, x3);
-xlim([0  0.01143]);  
-xlabel('Time (s)');
-ylabel('Amplitude');
-title('X3');
-
-
-%6d
-x4 = x3 + 2*a4*cos(4*omega*t);
-figure
-plot(t, x4);
-xlim([0  0.01143]);  
-xlabel('Time (s)');
-ylabel('Amplitude');
-title('X4');
-
-
-%6e
-x5 = x4 + 2*a5*cos(5*omega*t);
-figure
-plot(t, x5);
-xlim([0  0.01143]);  
-xlabel('Time (s)');
-ylabel('Amplitude');
-title('X5');
-%% #7
-%Do Fourier Transform
-x5_fft = abs(fft(x5) /Fs);            %Normalize Signal & Retain
-                                    %Magnitude
-x5_fft = x5_fft(1:Nsamps/2);          %Discard half of points
-f = Fs * (0:(Nsamps/2)-1)/Nsamps;   %Prepare frequency data for plots
-
-%Plot x5 in Frequency Domain
-figure;
-plot(f, x5_fft);
-
-xlim([0 1550]);                     %Show only 5 Harmonics
-xlabel('Frequency (Hz)');
-ylabel('Amplitude');
-title('Frequency Spectrum of x5');
-
-%% Part 2:Instrument filtered with 1st Order Low-Pass, cutoff frequency = 200 Hz
-h1 = (1.2566e+3)*exp((-t)/(795.77e-6));
-figure
-plot(t, h1);
-xlim([0  0.01143]);  
-xlabel('Time (s)');
-ylabel('Amplitude');
-title('Impulse Response at 200 Hz (h1)');
-%% #2
-%Do Fourier Transform
-h1_fft = abs(fft(h1) /Fs);            %Normalize Signal & Retain
-                                    %Magnitude
-h1_fft = h1_fft(1:Nsamps/2);          %Discard half of points
-f = Fs * (0:(Nsamps/2)-1)/Nsamps;   %Prepare frequency data for plots
-figure
-plot(f, h1_fft);
-xlim([0  1550]);  
-xlabel('Hz');
-ylabel('Amplitude');
-title('Frequency Spectrum of h1');
-
-%% #3
-%Convolution
-output = conv(x, h1) * Ts;
-
-Nsamps1 = length(output); %New Length Obtained from Convolution  which extends signal (Different from Nsamps)
-t1 = (Ts) * (1:Nsamps1);
-figure
-plot(t1, output);
-xlim([0 0.01143]);
-xlabel('Time (s)');
-ylabel('Amplitude');
-title('Convolution x & h1 (output)');
-
-%% #3b
-%Do Fourier Transform
-output_fft = abs(fft(output) /Fs);            %Normalize Signal & Retain Magnitude
-
-output_fft = output_fft(1:Nsamps1/2);          %Discard half of points
-f = Fs * (0:(Nsamps1/2)-1)/Nsamps1;   %Prepare frequency data for plots
-figure
-plot(f, output_fft);
-xlim([0  1550]);  
-xlabel('Hz');
-ylabel('Amplitude');
-title('Frequency Spectrum of output');
-
-
-%% #3c
-%Convert the output to a WAV file
-output_file = 'Filtered_Audio.WAV';
-audiowrite(output_file, output, Fs);
-
-
-%% Part 3: Instrument filtered with 1st Order Low-Pass, cutoff freq = 1000Hz
-
-h2 = (6.2832e+3)*exp((-t)/(159.1546e-6));
-figure
-plot(t, h2);
-xlim([0  0.01143]);  
-xlabel('Time (s)');
-ylabel('Amplitude');
-title('Impulse Response at 1000Hz (h2)');
-%% #2
-%Do Fourier Transform
-h2_fft = abs(fft(h2) /Fs);            %Normalize Signal & Retain
-                                    %Magnitude
-h2_fft = h2_fft(1:Nsamps/2);          %Discard half of points
-f = Fs * (0:(Nsamps/2)-1)/Nsamps;   %Prepare frequency data for plots
-figure
-plot(f, h2_fft);
-xlim([0  1550]);  
-xlabel('Hz');
-ylabel('Amplitude');
-title('Frequency Spectrum of h2');
-
-%% #3
-%Convolution
-output1 = conv(x, h2) * Ts;
-
-Nsamps2 = length(output1); %New Length Obtained from convolution which extends signal (Different from Nsamps)
-t = (Ts) * (1:Nsamps2);
-figure
-plot(t, output1);
-xlim([0 0.01143]);
-xlabel('Time (s)');
-ylabel('Amplitude');
-title('Convolution x & h2 (output1)');
-
-%% #3b
-%Do Fourier Transform
-y1_fft = abs(fft(output1) /Fs);            %Normalize Signal & Retain
-                                    %Magnitude
-y1_fft = y1_fft(1:Nsamps2/2);          %Discard half of points
-f = Fs * (0:(Nsamps2/2)-1)/Nsamps2;   %Prepare frequency data for plots
-figure
-plot(f, y1_fft);
-xlim([0  1550]);  
-xlabel('Hz');
-ylabel('Amplitude');
-title('Frequency Spectrum of output1');
-
-%% #3c
-%Convert the output to a WAV file
-output_file1 = 'Filtered_Audio1.WAV';
-audiowrite(output_file1, output1, Fs);
-
-%% Part 4: Voice signal filter with 1st Order Low-Pass cutoff frequency = 100Hz
-file = 'Voice.wav';
-[x, Fs] = audioread(file);          %x is an array containing the signal
-
-Ts = 1 / Fs;                        %Ts is Sampling Period
-Nsamps = length(x);                 %Nsamps is the length of array x
-t = Ts * (1:Nsamps);                %Prepare time data for plot
-                                    %Array is the length of Nsamps 
-                                    %in increments of Ts
-                                    
-%Plot Voice File in Time Domain
-figure;
-plot(t, x);
-xlim([0.3328 4])                      %only plot from o to 0.06s
-xlabel('Time (s)');
-ylabel('Amplitude');
-title('Voice Signal in Time Domain');
-
-                            
-%Do Fourier Transform
-x_fft = abs(fft(x) /Fs);            %Normalize Signal & Retain
-                                    %Magnitude
-x_fft = x_fft(1:Nsamps/2);          %Discard half of points
-f = Fs * (0:(Nsamps/2)-1)/Nsamps;   %Prepare frequency data for plots
-
-%Plot Voice File in Frequency Domain
-figure;
-plot(f, x_fft);
-xlim([0 1500]);                     
-xlabel('Frequency (Hz)');
-ylabel('Amplitude');
-title('Frequency Spectrum of Voice Signal');
-
-h3 = (0.63e+3)*exp(-t*(0.63e+3));
-
-%Do Fourier Transform
-h3_fft = abs(fft(h3) /Fs);            %Normalize Signal & Retain
-                                    %Magnitude
-h3_fft = h3_fft(1:Nsamps/2);          %Discard half of points
-f = Fs * (0:(Nsamps/2)-1)/Nsamps;   %Prepare frequency data for plots
+Here’s a detailed “ReadMe” file for the RC-Signal-Filter-MatLab project, which explains the purpose of the code, how to run it, and what each part does.
 
 
 
-%Plot h3 in Frequency Domain
-figure;
-plot(f, h3_fft);
-xlim([0 1500]);
-xlabel('Frequency (Hz)');
-ylabel('Amplitude');
-title('Frequency Spectrum of h3');
-
-%Convolution
-output3 = conv(x, h3) * Ts;
-
-Nsamps = length(output3);
-t = (Ts) * (1:Nsamps);
-figure
-plot(t, output3);
-xlim([0.3328 4]);
-xlabel('Time (s)');
-ylabel('Amplitude');
-title('Convolution Impulse Response & Voice Signal (output3)');
-
-%Do Fourier Transform
-output3_fft = abs(fft(output3) /Fs);            %Normalize Signal & Retain
-                                    %Magnitude
-output3_fft = output3_fft(1:Nsamps/2);          %Discard half of points
-f = Fs * (0:(Nsamps/2)-1)/Nsamps;   %Prepare frequency data for plots
-
-%Plot output3 in Frequency Domain
-figure;
-plot(f, output3_fft);
-xlim([0 1500]);                     
-xlabel('Frequency (Hz)');
-ylabel('Amplitude');
-title('Frequency Spectrum of Output3');
+RC-Signal-Filter-MatLab - README
 
 
-%Convert the output to a WAV file
-output_file = 'Filtered_Voice.wav';
-audiowrite(output_file, output3, Fs);
+
+Overview
+
+
+
+The RC-Signal-Filter-MatLab project implements a series of signal processing techniques using MATLAB to filter and analyze audio signals. The script performs the following tasks:
+
+• Load audio signals (WAV files).
+
+• Visualize the audio signals in both time and frequency domains.
+
+• Reconstruct audio signals using Fourier Series.
+
+• Apply first-order low-pass filters with different cutoff frequencies.
+
+• Perform convolution between signals and impulse responses.
+
+• Export the filtered signals back to WAV files.
+
+
+
+This project is particularly focused on filtering and analyzing signals using Fourier Transforms and convolution operations. The filters applied are first-order low-pass filters, and the cutoff frequencies are explored with different values to observe their effects on various types of audio signals (e.g., instrument signals and voice signals).
+
+
+
+Prerequisites
+
+• MATLAB: This code is intended to run on MATLAB. Ensure that you have a working installation of MATLAB.
+
+• Audio Files: The project uses audio files, specifically Signal2.wav and Voice.wav, that should be present in the directory for the code to run properly.
+
+• Signal Processing Toolbox: The project uses basic MATLAB functions for signal processing, so the Signal Processing Toolbox is not required but may enhance the experience.
+
+
+
+File Structure
+
+
+
+/RC-Signal-Filter-MatLab
+
+    ├── Signal2.wav          # Input audio file (instrument)
+
+    ├── Voice.wav            # Input audio file (voice)
+
+    ├── RC-Signal-Filter.m   # Main MATLAB script (this file)
+
+    └── README.md            # This file
+
+
+
+How to Run
+
+1. Prepare the Environment:
+
+Ensure you have the necessary audio files (Signal2.wav and Voice.wav) in your working directory.
+
+2. Run the Script:
+
+Open MATLAB, navigate to the directory containing the script and audio files, and run the script by typing:
+
+
+
+RC-Signal-Filter
+
+
+
+The script will:
+
+• Load the audio signal (Signal2.wav or Voice.wav).
+
+• Display various plots in both the time and frequency domains.
+
+• Apply first-order low-pass filters with different cutoff frequencies.
+
+• Perform convolutions and generate filtered output files (e.g., Filtered_Audio.WAV, Filtered_Audio1.WAV, Filtered_Voice.wav).
+
+
+
+Script Breakdown
+
+
+
+Part 1: Signal Analysis and Reconstruction
+
+1. Reading Audio File:
+
+The audio file Signal2.wav is loaded using audioread to obtain the signal data (x) and the sampling frequency (Fs).
+
+2. Time Domain Visualization:
+
+The script first plots the audio signal in the time domain using plot(t, x), where t is the time vector, and x is the audio data.
+
+3. Fourier Transform:
+
+The Fourier Transform is performed using the fft function to visualize the frequency spectrum of the signal.
+
+4. Reconstruction using Fourier Series:
+
+The script constructs the signal x by summing harmonic components of the form , where the coefficients a1, a2, ..., a5 are determined from the frequency analysis.
+
+5. Frequency Domain Visualization:
+
+Each reconstructed signal (x1, x2, …, x5) is plotted in both time and frequency domains to observe how adding harmonics changes the signal.
+
+
+
+Part 2: Filtering with 1st Order Low-Pass Filter (Cutoff Frequency = 200 Hz)
+
+1. Impulse Response Calculation:
+
+The impulse response h1 of the low-pass filter is defined as an exponentially decaying function with a cutoff frequency of 200 Hz. The filter’s response is visualized in both the time and frequency domains.
+
+2. Convolution:
+
+The signal x is convolved with the filter h1 using conv(x, h1) * Ts, where Ts is the sampling period.
+
+3. Output Generation:
+
+The filtered signal is saved to a new WAV file (Filtered_Audio.WAV) using the audiowrite function.
+
+
+
+Part 3: Filtering with 1st Order Low-Pass Filter (Cutoff Frequency = 1000 Hz)
+
+1. Impulse Response Calculation:
+
+Similar to Part 2, but with a cutoff frequency of 1000 Hz, the impulse response h2 is calculated and visualized.
+
+2. Convolution:
+
+The audio signal x is convolved with h2, and the filtered output is saved to a new WAV file (Filtered_Audio1.WAV).
+
+
+
+Part 4: Voice Signal Filtering with 1st Order Low-Pass Filter (Cutoff Frequency = 100 Hz)
+
+1. Voice Signal Analysis:
+
+The voice signal Voice.wav is loaded and analyzed in the same manner as the instrument signal, including time-domain and frequency-domain visualizations.
+
+2. Impulse Response Calculation:
+
+A low-pass filter h3 with a cutoff frequency of 100 Hz is created and applied to the voice signal.
+
+3. Convolution and Output:
+
+The voice signal is filtered, and the output is saved as Filtered_Voice.wav.
+
+
+
+Output
+
+• Filtered Audio Files:
+
+After applying the filters, the following filtered audio files are generated:
+
+• Filtered_Audio.WAV (filtered instrument signal with a 200 Hz cutoff).
+
+• Filtered_Audio1.WAV (filtered instrument signal with a 1000 Hz cutoff).
+
+• Filtered_Voice.wav (filtered voice signal with a 100 Hz cutoff).
+
+• Plots:
+
+The script generates multiple plots, including:
+
+• Time-domain plots of original and filtered signals.
+
+• Frequency-domain plots of original and filtered signals.
+
+• Impulse response plots of the low-pass filters.
+
+
+
+Notes
+
+• Convolution Length: The convolution operation extends the signal, resulting in an output with a different length than the input signal.
+
+• Sampling Rate: The sampling rate of the audio files (Fs) affects the filtering process and the accuracy of the Fourier Transform.
+
+• Filter Characteristics: The low-pass filters applied in this project have simple first-order exponential responses. The filter cutoff frequency determines the frequency components that are allowed to pass through.
+
+
+
+Future Enhancements
+
+• Higher-Order Filters: Implement higher-order low-pass filters for more complex filtering behaviors.
+
+• Interactive GUI: Develop a graphical user interface (GUI) for easier interaction with the program.
+
+• Real-Time Processing: Extend the project to process signals in real-time using streaming data.
+
+
+
+License
+
+
+
+This project is open-source and available under the MIT License.
+
+
+
+This ReadMe provides an overview of how the script works, including details on installation, usage, and the purpose of each section of the code. It can be expanded as needed if more features are added in the future.
+
